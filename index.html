@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>طلباتي</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        margin: 0;
+        background: #fff8f6;
+        color: #3d2930;
+    }
+
+    .app {
+        max-width: 500px;
+        margin: auto;
+        padding: 25px 18px 40px;
+    }
+
+    .header {
+        background: #741f3a;
+        color: white;
+        padding: 25px;
+        border-radius: 25px;
+        margin-bottom: 20px;
+    }
+
+    .header h1 {
+        margin: 0;
+        font-size: 30px;
+    }
+
+    .header p {
+        margin: 8px 0 0;
+        opacity: 0.9;
+    }
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 22px;
+        margin-bottom: 16px;
+        box-shadow: 0 5px 20px rgba(116,31,58,0.08);
+    }
+
+    .title {
+        color: #741f3a;
+        font-size: 19px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #e5dadd;
+        border-radius: 14px;
+        font-size: 15px;
+        margin-bottom: 10px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #741f3a;
+    }
+
+    button {
+        border: none;
+        border-radius: 14px;
+        padding: 13px 17px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .add {
+        width: 100%;
+        background: #741f3a;
+        color: white;
+    }
+
+    .product {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #e8f7f0;
+        padding: 14px;
+        border-radius: 16px;
+        margin-top: 10px;
+    }
+
+    .product-name {
+        font-weight: bold;
+    }
+
+    .product-price {
+        color: #806d74;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .choose {
+        background: white;
+        color: #741f3a;
+    }
+
+    .order-item {
+        background: #f8eeee;
+        padding: 14px;
+        border-radius: 16px;
+        margin-bottom: 10px;
+    }
+
+    .order-top {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+    }
+
+    .quantity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .quantity button {
+        background: #bfe8d5;
+        color: #741f3a;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        font-size: 20px;
+    }
+
+    .empty {
+        text-align: center;
+        color: #806d74;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .total {
+        background: #741f3a;
+        color: white;
+        padding: 22px;
+        border-radius: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .total small {
+        opacity: 0.8;
+    }
+
+    .total strong {
+        font-size: 25px;
+    }
+
+    .new-order {
+        margin-top: 12px;
+        width: 100%;
+        background: #bfe8d5;
+        color: #741f3a;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="header">
+        <h1>طلباتي 🧾</h1>
+        <p>حساب طلباتك بسهولة</p>
+    </div>
+
+    <div class="card">
+
+        <div class="title">📦 منتجاتي</div>
+
+        <input
+            id="productName"
+            type="text"
+            placeholder="اسم المنتج"
+        >
+
+        <input
+            id="productPrice"
+            type="number"
+            placeholder="سعر الوحدة"
+        >
+
+        <button class="add" onclick="addProduct()">
+            + إضافة المنتج
+        </button>
+
+        <div id="products"></div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="title">🧾 الطلب الحالي</div>
+
+        <div id="order">
+            <div class="empty">
+                أضيفي المنتجات للطلب 💚
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="total">
+
+        <div>
+            <small>إجمالي الطلب</small>
+            <div>
+                <strong id="total">0</strong> ريال
+            </div>
+        </div>
+
+    </div>
+
+    <button class="new-order" onclick="newOrder()">
+        + طلب جديد
+    </button>
+
+</div>
+
+
+<script>
+
+let products = JSON.parse(
+    localStorage.getItem("products") || "[]"
+);
+
+let order = [];
+
+
+function saveProducts() {
+
+    localStorage.setItem(
+        "products",
+        JSON.stringify(products)
+    );
+
+}
+
+
+function addProduct() {
+
+    const name =
+        document.getElementById("productName").value.trim();
+
+    const price =
+        Number(document.getElementById("productPrice").value);
+
+
+    if (name === "" || price <= 0) {
+
+        alert("اكتبي اسم المنتج والسعر");
+
+        return;
+    }
+
+
+    products.push({
+
+        id: Date.now(),
+
+        name: name,
+
+        price: price
+
+    });
+
+
+    saveProducts();
+
+    document.getElementById("productName").value = "";
+
+    document.getElementById("productPrice").value = "";
+
+    displayProducts();
+
+}
+
+
+function displayProducts() {
+
+    const container =
+        document.getElementById("products");
+
+
+    if (products.length === 0) {
+
+        container.innerHTML = "";
+
+        return;
+    }
+
+
+    container.innerHTML = products.map(product => `
+
+        <div class="product">
+
+            <div>
+
+                <div class="product-name">
+                    ${product.name}
+                </div>
+
+                <div class="product-price">
+                    ${product.price} ريال / الوحدة
+                </div>
+
+            </div>
+
+            <button
+                class="choose"
+                onclick="addToOrder(${product.id})"
+            >
+                أضف
+            </button>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+function addToOrder(id) {
+
+    const product =
+        products.find(p => p.id === id);
+
+
+    const existing =
+        order.find(item => item.id === id);
+
+
+    if (existing) {
+
+        existing.quantity++;
+
+    } else {
+
+        order.push({
+
+            id: product.id,
+
+            name: product.name,
+
+            price: product.price,
+
+            quantity: 1
+
+        });
+
+    }
+
+
+    displayOrder();
+
+}
+
+
+function changeQuantity(id, amount) {
+
+    const item =
+        order.find(item => item.id === id);
+
+
+    if (!item) return;
+
+
+    item.quantity += amount;
+
+
+    if (item.quantity <= 0) {
+
+        order =
+            order.filter(item => item.id !== id);
+
+    }
+
+
+    displayOrder();
+
+}
+
+
+function displayOrder() {
+
+    const container =
+        document.getElementById("order");
+
+
+    if (order.length === 0) {
+
+        container.innerHTML = `
+            <div class="empty">
+                أضيفي المنتجات للطلب 💚
+            </div>
+        `;
+
+        document.getElementById("total").innerText = "0";
+
+        return;
+    }
+
+
+    let total = 0;
+
+
+    container.innerHTML = order.map(item => {
+
+        const subtotal =
+            item.price * item.quantity;
+
+
+        total += subtotal;
+
+
+        return `
+
+            <div class="order-item">
+
+                <div class="order-top">
+
+                    <span>
+                        ${item.name}
+                    </span>
+
+                    <span>
+                        ${subtotal} ريال
+                    </span>
+
+                </div>
+
+
+                <div class="quantity">
+
+                    <button
+                        onclick="changeQuantity(${item.id}, -1)"
+                    >
+                        −
+                    </button>
+
+                    <strong>
+                        ${item.quantity}
+                    </strong>
+
+                    <button
+                        onclick="changeQuantity(${item.id}, 1)"
+                    >
+                        +
+                    </button>
+
+                    <span>
+                        ${item.price} ريال × ${item.quantity}
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }).join("");
+
+
+    document.getElementById("total").innerText =
+        total;
+
+}
+
+
+function newOrder() {
+
+    order = [];
+
+    displayOrder();
+
+}
+
+
+displayProducts();
+
+displayOrder();
+
+</script>
+
+</body>
+</html>
